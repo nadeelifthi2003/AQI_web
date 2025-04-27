@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Users – Colombo AQI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background-color: #f4fdf6;
+      font-family: 'Segoe UI', sans-serif;
+      color: #2e7d32;
+    }
+
+    .wrapper {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 240px;
+      background-color: #c8e6c9;
+      padding: 1.5rem 1rem;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+    }
+
+    .sidebar h4 {
+      color: #2e7d32;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .sidebar a {
+      display: block;
+      color: #2e7d32;
+      padding: 0.6rem 1rem;
+      margin: 0.5rem 0;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: #a5d6a7;
+      color: #1b5e20;
+    }
+
+    .content {
+      margin-left: 240px;
+      padding: 2rem;
+      flex-grow: 1;
+    }
+
+    h4.page-title {
+      color: #2e7d32;
+      font-weight: 600;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .card {
+      background-color: #ffffff;
+      border: 1px solid #c5e1a5;
+      border-radius: 16px;
+      box-shadow: 0 0 10px rgba(76, 175, 80, 0.1);
+      color: #2e7d32;
+    }
+
+    .card-header {
+      background-color: #e8f5e9;
+      border-bottom: 1px solid #c5e1a5;
+      color: #2e7d32;
+      font-weight: bold;
+    }
+
+    .form-control {
+      background-color: #f4fdf6;
+      color: #2e7d32;
+      border: 1px solid #c5e1a5;
+    }
+
+    .form-label {
+      color: #2e7d32;
+      font-weight: 600;
+    }
+
+    .form-control:focus {
+      border-color: #66bb6a;
+      box-shadow: 0 0 5px rgba(102, 187, 106, 0.3);
+    }
+
+    .btn-blue {
+      background-color: #66bb6a;
+      color: white;
+      border: none;
+    }
+
+    .btn-blue:hover {
+      background-color: #4caf50;
+    }
+
+    .table thead {
+      background-color: #66bb6a;
+      color: white;
+    }
+
+    .table tbody tr {
+      background-color: #e8f5e9;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        position: relative;
+        height: auto;
+      }
+
+      .content {
+        margin-left: 0;
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="sidebar">
+      <h4>🌿 AQI Admin</h4>
+      <a href="system-admin.html">Dashboard</a>
+      <a href="index.html">Public View</a>
+      <a href="#" class="active">Admin Users</a>
+      <a href="logout.html">Logout</a>
+    </div>
+
+    <div class="content">
+      <h4 class="page-title">Manage Monitoring Admins</h4>
+
+      <div class="card mb-4">
+        <div class="card-header">Add New Monitoring Admin</div>
+        <div class="card-body">
+          <form id="user-form" class="row g-3">
+            <div class="col-md-5">
+              <label class="form-label">Username</label>
+              <input required class="form-control" placeholder="Username" id="user-username" />
+            </div>
+            <div class="col-md-5">
+              <label class="form-label">Password</label>
+              <input required class="form-control" placeholder="Password" type="password" id="user-password" />
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+              <button type="submit" class="btn btn-blue w-100">Add Admin</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          Registered Monitoring Admins
+          <button class="btn btn-sm btn-blue" onclick="loadUsers()">
+            <span class="material-icons-outlined">refresh</span>
+          </button>
+        </div>
+        <div class="card-body">
+          <table class="table table-hover table-bordered align-middle">
+            <thead>
+              <tr><th>ID</th><th>Username</th><th>Action</th></tr>
+            </thead>
+            <tbody id="user-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const apiBase = "https://localhost:7086/api";
+
+    function loadUsers() {
+      fetch(`${apiBase}/users`)
+        .then(res => res.json())
+        .then(users => {
+          const tbody = document.getElementById("user-table-body");
+          tbody.innerHTML = "";
+          users.forEach(user => {
+            tbody.innerHTML += `
+              <tr>
+                <td>${user.id}</td>
+                <td>${user.username}</td>
+                <td>
+                  <button class="btn btn-sm btn-warning me-1" onclick="editUser(${user.id}, '${user.username}')">
+                    <span class="material-icons-outlined">edit</span>
+                  </button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})">
+                    <span class="material-icons-outlined">delete</span>
+                  </button>
+                </td>
+              </tr>`;
+          });
+        });
+    }
+
+    function deleteUser(id) {
+      fetch(`${apiBase}/users/${id}`, { method: "DELETE" })
+        .then(() => loadUsers());
+    }
+
+    function editUser(id, username) {
+      const newUsername = prompt("Edit username:", username);
+      if (newUsername && newUsername !== username) {
+        fetch(`${apiBase}/users/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: newUsername })
+        }).then(() => loadUsers());
+      }
+    }
+
+    document.getElementById("user-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const data = {
+        username: document.getElementById("user-username").value,
+        password: document.getElementById("user-password").value
+      };
+      fetch(`${apiBase}/Auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      }).then(() => {
+        alert("User created!");
+        loadUsers();
+        this.reset();
+      });
+    });
+
+    document.addEventListener("DOMContentLoaded", loadUsers);
+  </script>
+</body>
+</html>
