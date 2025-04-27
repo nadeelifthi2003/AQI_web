@@ -6,31 +6,51 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
-    body { margin: 0; padding: 0; background-color: #f8f9fa; }
+    body {
+      margin: 0;
+      background-color: #f4fef6;
+      font-family: 'Segoe UI', sans-serif;
+      color: #2e7d32;
+    }
+    
     .sidebar {
-      height: 100vh;
-      background-color: #212529;
-      color: white;
+      width: 240px;
+      background-color: #e8f5e9;
+      padding: 1.5rem 1rem;
+      border-right: 1px solid #c8e6c9;
       position: fixed;
       top: 0;
+      bottom: 0;
       left: 0;
-      width: 220px;
-      padding-top: 60px;
-      overflow-y: auto;
     }
+
+    .sidebar h4 {
+      color: #2e7d32;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
     .sidebar a {
-      color: white;
       display: block;
-      padding: 12px 20px;
+      color: #2e7d32;
+      padding: 0.6rem 1rem;
+      margin: 0.5rem 0;
+      border-radius: 8px;
       text-decoration: none;
+      transition: background 0.3s;
     }
-    .sidebar a:hover {
-      background-color: #343a40;
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: #c8e6c9;
     }
+
     .main-content {
       margin-left: 220px;
       padding: 20px;
     }
+
     .navbar {
       position: fixed;
       top: 0;
@@ -38,16 +58,25 @@
       right: 0;
       z-index: 1030;
     }
+
     .material-icons {
       vertical-align: middle;
       margin-right: 4px;
     }
+
     .btn-dark-green {
-      background-color: #14532d;
+      background-color: #2e7d32;
       color: white;
     }
+
     .btn-dark-green:hover {
-      background-color: #0f3c22;
+      background-color: #2e7d32;
+    }
+
+    /* Table Heading Bar Customization */
+    .table-dark {
+      background-color: #2e7d32; /* Dark Green Background */
+      color: white; /* Text color */
     }
   </style>
 </head>
@@ -57,15 +86,16 @@
     <a href="sensors.html"><span class="material-icons">sensors</span> Sensors</a>
     <a href="simulation.html"><span class="material-icons">sync</span> Simulation</a>
     <a href="alerts.html"><span class="material-icons">warning</span> Alerts</a>
-    <a href="users.html" class="bg-dark"><span class="material-icons">people</span> Admins</a>
+    <a href="users.html" ><span class="material-icons">people</span> Admins</a>
     <a href="index.html"><span class="material-icons">public</span> Public</a>
   </div>
 
-  <nav class="navbar navbar-dark bg-dark">
+  <nav class="navbar">
     <div class="container-fluid">
-      <span class="navbar-brand mb-0 h1">Admin Users</span>
+      <span class="navbar-brand mb-0 h1" style="color: #2e7d32; text-align: center; width: 100%; display: block;">Admin Users</span>
     </div>
   </nav>
+  
 
   <div class="main-content">
     <br><br>
