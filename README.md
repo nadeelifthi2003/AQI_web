@@ -1,1 +1,1 @@
-Real-time air quality information for the Colombo Metropolitan Area
+Real-time Air quality information for the Colombo Metropolitan Area
