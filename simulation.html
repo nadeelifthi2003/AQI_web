@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulation Control – AQI Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f4fdf6;
+      font-family: 'Segoe UI', sans-serif;
+      color: #2e7d32;
+      margin: 0;
+    }
+
+    .wrapper {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 240px;
+      background-color: #c8e6c9;
+      padding: 1.5rem 1rem;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+    }
+
+    .sidebar h4 {
+      color: #2e7d32;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .sidebar a {
+      display: block;
+      color: #2e7d32;
+      padding: 0.6rem 1rem;
+      margin: 0.5rem 0;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: #a5d6a7;
+      color: #1b5e20;
+    }
+
+    .content {
+      margin-left: 240px;
+      padding: 2rem;
+      flex-grow: 1;
+    }
+
+    h4.page-title {
+      color: #2e7d32;
+      font-weight: 600;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .card {
+      background-color: #ffffff;
+      border: 1px solid #c5e1a5;
+      border-radius: 16px;
+      box-shadow: 0 0 10px rgba(76, 175, 80, 0.1);
+      color: #2e7d32;
+    }
+
+    .card-header {
+      background-color: #e8f5e9;
+      border-bottom: 1px solid #c5e1a5;
+      color: #2e7d32;
+      font-weight: bold;
+    }
+
+    .form-label {
+      color: #2e7d32;
+      font-weight: 600;
+    }
+
+    .btn-primary-custom {
+      background-color: #66bb6a;
+      border: none;
+      color: white;
+    }
+
+    .btn-primary-custom:hover {
+      background-color: #4caf50;
+    }
+
+    .status-text {
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        position: relative;
+        height: auto;
+      }
+      .content {
+        margin-left: 0;
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h4>🌿 AQI Admin</h4>
+    <a href="admin.html">Dashboard</a>
+    <a href="sensors.html">Sensors</a>
+    <a href="simulation.html" class="active">Simulation</a>
+    <a href="alerts.html">Alerts</a>
+    <a href="logout.html">Sign Out</a>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <h4 class="page-title">Simulation Control Panel</h4>
+
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header d-flex align-items-center">
+            <span class="material-icons-outlined me-2">tune</span> Simulation Configuration
+          </div>
+          <div class="card-body">
+            <form id="config-form" class="row g-3">
+              <div class="col-md-12">
+                <label class="form-label">Interval (minutes)</label>
+                <input required type="number" id="interval" class="form-control" placeholder="e.g. 5">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Base AQI</label>
+                <input required type="number" id="baseAqi" class="form-control" placeholder="e.g. 50">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Variation</label>
+                <input required type="number" id="variation" class="form-control" placeholder="e.g. 15">
+              </div>
+              <div class="col-12">
+                <button class="btn btn-primary-custom w-100" type="submit">
+                  <span class="material-icons-outlined">save</span> Save Configuration
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header d-flex align-items-center">
+            <span class="material-icons-outlined me-2">play_circle</span> Simulation Controls
+          </div>
+          <div class="card-body">
+            <p class="mb-3">Status: <span id="sim-status" class="status-text text-muted">Loading...</span></p>
+            <div class="d-flex gap-3">
+              <button class="btn btn-success w-50" onclick="startSim()">
+                <span class="material-icons-outlined">play_arrow</span> Start
+              </button>
+              <button class="btn btn-danger w-50" onclick="stopSim()">
+                <span class="material-icons-outlined">stop</span> Stop
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const apiBase = "https://localhost:7086/api";
+
+  document.getElementById("config-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const data = {
+      intervalMinutes: parseInt(document.getElementById("interval").value),
+      baseAQI: parseInt(document.getElementById("baseAqi").value),
+      variation: parseInt(document.getElementById("variation").value)
+    };
+
+    fetch(`${apiBase}/simulation/config`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    }).then(() => alert("Configuration updated!"));
+  });
+
+  function loadStatus() {
+    fetch(`${apiBase}/simulation/status`)
+      .then(res => res.json())
+      .then(data => {
+        const statusEl = document.getElementById("sim-status");
+        statusEl.textContent = data.isRunning ? "Running" : "Stopped";
+        statusEl.className = data.isRunning ? "status-text text-success" : "status-text text-danger";
+      });
+  }
+
+  function startSim() {
+    fetch(`${apiBase}/simulation/start`, { method: "POST" })
+      .then(() => loadStatus());
+  }
+
+  function stopSim() {
+    fetch(`${apiBase}/simulation/stop`, { method: "POST" })
+      .then(() => loadStatus());
+  }
+
+  document.addEventListener("DOMContentLoaded", loadStatus);
+</script>
+</body>
+</html>
